@@ -18,7 +18,7 @@ plot = sns.barplot(x='level' , y='salary' , data=people_df , palette='pastel')
 plot.figure.set_figwidth(15)
 plot.figure.set_figheight(8)
 
-plot.set_xlabel('Salário médio por nível');
+plot.set_title('Salário médio por nível');
 plot.set_xlabel('Nível');
 plot.set_ylabel('Salário médio (R$)');
 
