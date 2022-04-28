@@ -1,0 +1,25 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+people = [
+  {'level': 'Júnior', 'salary': 1500}, 
+  {'level': 'Júnior', 'salary': 1200}, 
+  {'level': 'Pleno',  'salary': 3000}, 
+  {'level': 'Sênior', 'salary': 5000}
+]
+
+people_df = pd.DataFrame(people)
+print(people_df.head())
+
+plot = sns.barplot(x='level' , y='salary' , data=people_df , palette='pastel')
+
+plot.figure.set_figwidth(15)
+plot.figure.set_figheight(8)
+
+plot.set_xlabel('Salário médio por nível');
+plot.set_xlabel('Nível');
+plot.set_ylabel('Salário médio (R$)');
+
+plt.show()
