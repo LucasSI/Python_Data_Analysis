@@ -1,0 +1,145 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#Extração
+
+'ler os dados'
+report_df = pd.read_csv('./report.csv')
+
+'''i = 0
+for column in report_df:
+    
+    print(i, column)
+    i+= 1
+
+print(report_df.columns[47])
+print(report_df.loc[[0]])
+'''
+
+#Exploração
+'5 primeiras linhas'
+print(report_df.head(n=5), '\n')
+
+'5 ultimas linhas'
+print(report_df.tail(n=5), '\n')
+
+'Número de linhas e colunas.'
+print(report_df.shape, '\n')
+
+'Nome das colunas.'
+print(report_df.columns, '\n')
+
+'Tipo do dado.'
+print(report_df.dtypes, '\n')
+
+#Limpeza
+
+'Extrair as colunas do DataFrame em uma lista.'
+reports_columns = report_df.columns.to_list()
+print(reports_columns[0:5], '\n')
+
+'Depois de explorar o nome das colunas, encontrar as que representam o nível e o salário.'
+print(reports_columns[17], '\n')
+print(reports_columns[18], '\n')
+
+'Então, filtramos os DataFrame original através da seleção das colunas de interesse.'
+report_clean_df = report_df[["('P2_g ', 'Nivel')", "('P2_h ', 'Faixa salarial')"]]
+print(report_clean_df.head(), '\n')
+
+'Extrair as colunas do DataFrame em uma lista.'
+reports_columns = report_clean_df.columns.to_list()
+print(reports_columns, '\n')
+
+'Limpar as string com os nomes das colunas.'
+reports_clean_columns = []
+for reports_column in reports_columns:
+    clean_column = (reports_column
+                .split(sep=',')[-1]
+                .strip()
+                .replace("'", "")
+                .replace(")", "")
+                .lower()
+    )
+    reports_clean_columns.append(clean_column)
+print(reports_clean_columns, '\n')
+
+'Substituir as colunas originais pelas limpas.'
+report_clean_df.columns = reports_clean_columns
+print(report_clean_df.head(), '\n')
+
+'Observar a ocorrencia de valores nulos em ambas as colunas'
+report_clean_df['nivel'].value_counts(dropna=False)
+print(report_clean_df['faixa salarial'].value_counts(dropna=False), '\n')
+
+'Remover todas as colunas com valores nulos.'
+report_clean_df = report_clean_df.dropna()
+print(report_clean_df['nivel'].value_counts(dropna=False), '\n')
+print(report_clean_df['faixa salarial'].value_counts(dropna=False), '\n')
+
+'Observar a redução do número de linhas.'
+print(report_df.shape, '\n')
+print(report_clean_df.shape, '\n')
+
+#Agregação
+
+'Adicionamos uma coluna chamada soma com o valor igual a 1.'
+report_clean_df['soma'] = 1
+print(report_clean_df.head(), '\n')
+
+'Agregamos as colunas de nível e faixa salarial através da soma da coluna soma.'
+report_clean_df = report_clean_df.groupby(['nivel', 'faixa salarial']).sum('soma').reset_index()
+print(report_clean_df.head(20), '\n')
+
+'Manualmente definir a ordem das faixa salariais em um dicionário.'
+print(report_clean_df['faixa salarial'].drop_duplicates().to_dict(), '\n')
+
+faixa_salarial_ordenada = [
+  {'ordem': 0,'faixa salarial': 'Menos de R$ 1.000/mês'},
+  {'ordem': 1,'faixa salarial': 'de R$ 1.001/mês a R$ 2.000/mês'},
+  {'ordem': 2,'faixa salarial': 'de R$ 2.001/mês a R$ 3000/mês'},
+  {'ordem': 3,'faixa salarial': 'de R$ 3.001/mês a R$ 4.000/mês'},
+  {'ordem': 4,'faixa salarial': 'de R$ 4.001/mês a R$ 6.000/mês'},
+  {'ordem': 5,'faixa salarial': 'de R$ 6.001/mês a R$ 8.000/mês'},
+  {'ordem': 6,'faixa salarial': 'de R$ 8.001/mês a R$ 12.000/mês'},
+  {'ordem': 7,'faixa salarial': 'de R$ 12.001/mês a R$ 16.000/mês'},
+  {'ordem': 8,'faixa salarial': 'de R$ 16.001/mês a R$ 20.000/mês'},
+  {'ordem': 9,'faixa salarial': 'de R$ 20.001/mês a R$ 25.000/mês'},
+  {'ordem': 10,'faixa salarial': 'de R$ 25.001/mês a R$ 30.000/mês'},
+  {'ordem': 11,'faixa salarial': 'de R$ 30.001/mês a R$ 40.000/mês'},
+  {'ordem': 12,'faixa salarial': 'Acima de R$ 40.001/mês'}
+]
+
+'Criar um DataFrame com o dicionário.'
+faixa_salarial_ordenada_df = pd.DataFrame(faixa_salarial_ordenada)
+print(faixa_salarial_ordenada_df.head(12), '\n')
+
+'Combinar com o DataFrame do relatório.'
+report_clean_df = report_clean_df.merge(faixa_salarial_ordenada_df, on=['faixa salarial'], how='left')
+print(report_clean_df.head(20), '\n')
+
+'Ordernar por nível e ordem.'
+report_clean_df = report_clean_df.sort_values(['nivel', 'ordem'], ascending=[True, True]).reset_index()
+print(report_clean_df.head(20), '\n')
+
+#Desafio
+
+# imprime o gráfico
+plot = None
+'Colunas x = nivel, y = soma e hue = faixa salarial'
+plot = sns.barplot(x='nivel' ,y='soma' ,hue='faixa salarial' ,data=report_clean_df ,palette='pastel')
+
+# configura o tamanho do gráfico
+plot.figure.set_figwidth(20)
+plot.figure.set_figheight(11.5)
+
+plot.legend(loc='center left', bbox_to_anchor=(0.55, 0.5))
+
+# configura o título do gráfico e dos eixos
+plot.set_title('Quantidade de pessoas por nível por faixa salarial')
+plot.set_xlabel('Nível')
+plot.set_ylabel('Quantidade')
+
+sns.set(font_scale=2)
+
+plt.show()
